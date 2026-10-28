@@ -3,19 +3,26 @@
   "builds": [
     {
       "src": "api/index.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "includeFiles": [
+          "app.py",
+          "dijkstra.py",
+          "bfs_dfs.py",
+          "kruskal.py",
+          "bridges.py",
+          "warshall.py",
+          "euler_degree.py",
+          "coloring_tsp.py",
+          "index.html",
+          "css/**",
+          "js/**",
+          "images/**"
+        ]
+      }
     }
   ],
-  "functions": {
-    "api/index.py": {
-      "includeFiles": [
-        "index.html",
-        "css/**",
-        "js/**",
-        "images/**"
-      ]
-    }
-  },
   "routes": [
     {
       "src": "/(.*)",

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Campus Navigator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<aside>
+  <div class="brand"><span>🧭</span><h1>Smart Campus Navigator</h1></div>
+  <button class="on" data-tab="nav">🏠 Dashboard</button>
+  <button data-tab="ana">📊 Graph analysis</button>
+  <button data-tab="alg">🎞️ Algorithm steps</button>
+  <button data-tab="cmp">⚖️ Comparison</button>
+  <div class="sp"></div>
+  <div class="tagline">Explore.<br>Navigate.<br>Discover your campus.</div>
+  <button id="theme">🌓 Switch theme</button>
+</aside>
+<main>
+  <div class="top"><div><h2>Welcome back 👋</h2><p>Find the shortest route and see the maths behind it.</p></div><div class="card date" id="date"></div></div>
+  <div class="stats" id="stats"></div>
+  <div class="grid">
+    <div class="left">
+      <div class="card">
+        <div class="row between">
+          <div class="seg"><button class="on" id="vSat">Satellite</button><button id="vGraph">Graph view</button></div>
+          <select id="overlay" aria-label="Map overlay"><option value="route">Show route</option><option value="mst">Show spanning tree</option><option value="color">Show colouring</option></select>
+        </div>
+        <div id="map"></div>
+        <p class="note" id="mapnote">Click a building to set start, then destination. Click a path to block or unblock it. No internet? Use Graph view.</p>
+      </div>
+      <div class="card"><div class="head"><h3>📍 Nearby locations</h3><span class="note">from your start point</span></div><div class="near" id="near"></div></div>
+      <div class="card"><h3>⚡ Quick access</h3><div class="quick" id="quick"></div></div>
+    </div>
+    <div>
+      <div class="tab on" id="tab-nav">
+        <div class="card"><h3>🧭 Plan your route</h3>
+          <p class="note" style="margin:8px 0 4px">From</p><select id="start"></select>
+          <div class="swap"><button class="btn ghost" id="swap">⇅</button></div>
+          <p class="note" style="margin:0 0 4px">To</p><select id="end"></select>
+          <p class="note" style="margin:12px 0 4px">Route type</p>
+          <div class="row" id="rtypes"><button class="btn" data-r="short">Shortest</button><button class="btn ghost" data-r="acc">Accessible</button><button class="btn ghost" data-r="emg">Emergency</button></div>
+          <p class="note" style="margin:12px 0 4px">Add a stop on the way (optional)</p><select id="via"></select>
+          <p class="note" style="margin:12px 0 4px"><label><input type="checkbox" id="crowdOn"> Rush-hour crowds</label> &nbsp; Time: <b id="clockTxt"></b></p>
+          <input type="range" id="clock" min="6" max="20" step="0.25" value="13" style="width:100%" aria-label="Time of day">
+          <div class="row"><button class="btn" id="find" style="flex:1">Find route →</button><button class="btn ghost" id="reset">Unblock paths</button></div>
+        </div>
+        <div class="card"><div class="note" id="kind">Shortest route (Dijkstra)</div><div class="big" id="dist"></div><div class="chips" id="chips"></div><div class="note" id="time"></div><div class="row" style="margin:8px 0 0;align-items:center"><button class="btn ghost" id="walkBtn">🚶 Walk this route</button><b id="eta"></b></div></div>
+        <div class="card"><h3>Route details</h3><ol id="steps2"></ol></div>
+        <div class="card"><h3>Compare routes</h3><table id="routes"></table><p class="note" id="bfsNote"></p></div>
+        <div class="card"><h3>Visit several places</h3><p class="note">Hold Ctrl or Cmd to pick 2 to 5 stops. The start is your From location.</p><select id="stops" multiple size="5"></select>
+          <div class="row" style="margin-top:8px"><button class="btn" id="tspBtn">Find best order</button></div><div class="note" id="tspOut"></div></div>
+        <div class="card"><h3>🔔 Live updates</h3><ul id="live"></ul></div>
+      </div>
+      <div class="tab" id="tab-ana">
+        <div class="card"><h3>Degree and handshaking lemma</h3><div id="deg"></div><p class="note" id="hs"></p></div>
+        <div class="card"><h3>Euler, bridges, components</h3><p id="euler"></p><p id="bridges"></p><p class="note" id="comps"></p></div>
+        <div class="card"><h3>Minimum spanning tree (Kruskal)</h3><p id="mst"></p></div>
+        <div class="card"><h3>Relation properties</h3><p id="rel"></p></div>
+        <div class="card"><h3>Adjacency matrix</h3><div class="scroll"><table class="m" id="mat"></table></div></div>
+        <div class="card"><h3>Reachability (Warshall)</h3><div class="scroll"><table class="m" id="reach"></table></div></div>
+      </div>
+      <div class="tab" id="tab-alg">
+        <div class="card"><h3>Dijkstra, step by step</h3>
+          <div class="row" style="margin-top:8px"><button class="btn" id="play">Play animation</button><button class="btn ghost" id="stepBtn">Next step</button></div>
+          <p class="note">Each step picks the closest unvisited building. Watch the map and the table.</p>
+          <div class="scroll"><table id="steps"></table></div></div>
+      </div>
+      <div class="tab" id="tab-cmp">
+        <div class="card"><h3>BFS vs Dijkstra</h3><p class="note">BFS counts stops. Dijkstra counts metres.</p><div id="cmpBox"></div></div>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/api.js"></script>
+<script src="js/map.js"></script>
+<script src="js/navigate.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/steps.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
